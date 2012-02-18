@@ -10,6 +10,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.hermitcrab.entity.Software;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import com.google.gson.Gson;
 
@@ -25,11 +29,12 @@ public class AlternativeTo {
 	public static final String PLATFORM_WINPHONE = "windows-phone";
 	public static final String PLATFORM_ONLINE = "online";
 
-	private static final String API_PREFIX = "http://api.alternativeto.net/";
+	private static final String ALTERNATIVETO_DOMAIN = "alternativeto.net/";
+	private static final String API_PREFIX = "http://api." + ALTERNATIVETO_DOMAIN;
 	private static final String LOG_TAG = "AlternativeToAPI";
 	private static final String API_SEARCH = "search/software/";
 	private static final String API_ALTERNATIVE = "software/";
-	private static final Object API_ABOUT = "about/";
+	private static final Object API_ABOUT = "/about/";
 
 	private static Gson mGson = new Gson();
 
@@ -45,7 +50,7 @@ public class AlternativeTo {
 		}
 		return builder.toString();
 	}
-	
+
 	private static String getContent(String urlText) {
 		StringBuilder builder = new StringBuilder();
 		try {
@@ -107,5 +112,27 @@ public class AlternativeTo {
 		Software[] apps = mGson.fromJson(getContent(builder.toString()),
 				Software[].class);
 		return apps == null ? new Software[0] : apps;
+	}
+
+	public static String[] getScreenshot(String name) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("http://" + ALTERNATIVETO_DOMAIN);
+		builder.append(API_ALTERNATIVE);
+		builder.append(name);
+		builder.append(API_ABOUT);
+
+		String content = getContent(builder.toString());
+		
+		if (content != null) {
+			Document doc = Jsoup.parse(content);
+			Elements elements = doc.select("ol.screens li.screenshot img");
+			String[] result = new String[elements.size()];
+			for (int i = 0; i < elements.size(); i++) {
+				Element e = elements.get(i);
+				result[i] = e.attr("src");
+			}
+			return result;
+		}
+		return null;
 	}
 }
