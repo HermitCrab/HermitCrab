@@ -68,7 +68,7 @@ public class RecentAppListLoader extends AppListLoader {
 		List<AppEntry> entries = new ArrayList<AppEntry>(apps.size());
 		for (int i = 0; i < apps.size(); i++) {
 			ApplicationInfo info = apps.get(i);
-			AppEntry entry = new AppEntry(this, info);
+			AppEntry entry = new AppEntry(info);
 			entry.loadLabel(context);
 			entries.add(entry);
 		}

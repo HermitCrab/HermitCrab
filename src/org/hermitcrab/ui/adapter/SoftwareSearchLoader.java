@@ -1,32 +1,23 @@
 package org.hermitcrab.ui.adapter;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
-import org.hermitcrab.PackageIntentReceiver;
-import org.hermitcrab.util.InterestingConfigChanges;
+import org.hermitcrab.api.AlternativeTo;
+import org.hermitcrab.entity.Software;
 
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.support.v4.content.AsyncTaskLoader;
+import android.text.TextUtils;
 
-public class AppListLoader extends AsyncTaskLoader<List<AppEntry>> {
+public class SoftwareSearchLoader extends AsyncTaskLoader<Software[]> {
 
-	final InterestingConfigChanges mLastConfig = new InterestingConfigChanges();
-	final PackageManager mPm;
+	private final AppEntry mAppEntry;
 
-	List<AppEntry> mApps;
-	PackageIntentReceiver mPackageObserver;
+	Software[] mApps;
 
-	public AppListLoader(Context context) {
+	public SoftwareSearchLoader(Context context, AppEntry appEntry) {
 		super(context);
-
-		// Retrieve the package manager for later use; note we don't
-		// use 'context' directly but instead the save global application
-		// context returned by getContext().
-		mPm = getContext().getPackageManager();
+		mAppEntry = appEntry;
 	}
 
 	/**
@@ -35,34 +26,23 @@ public class AppListLoader extends AsyncTaskLoader<List<AppEntry>> {
 	 * by the loader.
 	 */
 	@Override
-	public List<AppEntry> loadInBackground() {
-		// Retrieve all known applications.
-		List<ApplicationInfo> apps = mPm
-				.getInstalledApplications(PackageManager.GET_UNINSTALLED_PACKAGES
-						| PackageManager.GET_DISABLED_COMPONENTS);
-		if (apps == null) {
-			apps = new ArrayList<ApplicationInfo>();
-		}
+	public Software[] loadInBackground() {
+		ArrayList<String> keywords = new ArrayList<String>();
 
-		final Context context = getContext();
-
-		// Create corresponding array of entries and load their labels.
-		List<AppEntry> entries = new ArrayList<AppEntry>(apps.size());
-		for (int i = 0; i < apps.size(); i++) {
-			ApplicationInfo info = apps.get(i);
-			if (((info.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0)
-					|| ((info.flags & ApplicationInfo.FLAG_SYSTEM) == 0)) {
-				AppEntry entry = new AppEntry(info);
-				entry.loadLabel(context);
-				entries.add(entry);
+		String packageName = mAppEntry.getApplicationInfo().packageName;
+		String[] segments = TextUtils.split(packageName, ".");
+		for (String segment : segments) {
+			if (segment.length() > 3) {
+				keywords.add(segment);
 			}
 		}
+		keywords.add(mAppEntry.getLabel());
 
-		// Sort the list.
-		Collections.sort(entries, AppEntry.ALPHA_COMPARATOR);
+		Software[] softwares = AlternativeTo.search(
+				TextUtils.join("%20", keywords),
+				new String[] { AlternativeTo.PLATFORM_ANDROID });
 
-		// Done!
-		return entries;
+		return softwares;
 	}
 
 	/**
@@ -71,7 +51,7 @@ public class AppListLoader extends AsyncTaskLoader<List<AppEntry>> {
 	 * little more logic.
 	 */
 	@Override
-	public void deliverResult(List<AppEntry> apps) {
+	public void deliverResult(Software[] apps) {
 		if (isReset()) {
 			// An async query came in while the loader is stopped. We
 			// don't need the result.
@@ -79,7 +59,7 @@ public class AppListLoader extends AsyncTaskLoader<List<AppEntry>> {
 				onReleaseResources(apps);
 			}
 		}
-		List<AppEntry> oldApps = apps;
+		Software[] oldApps = apps;
 		mApps = apps;
 
 		if (isStarted()) {
@@ -107,17 +87,7 @@ public class AppListLoader extends AsyncTaskLoader<List<AppEntry>> {
 			deliverResult(mApps);
 		}
 
-		// Start watching for changes in the app data.
-		if (mPackageObserver == null) {
-			mPackageObserver = new PackageIntentReceiver(this);
-		}
-
-		// Has something interesting in the configuration changed since we
-		// last built the app list?
-		boolean configChange = mLastConfig.applyNewConfig(getContext()
-				.getResources());
-
-		if (takeContentChanged() || mApps == null || configChange) {
+		if (takeContentChanged() || mApps == null) {
 			// If the data has changed since the last time it was loaded
 			// or is not currently available, start a load.
 			forceLoad();
@@ -137,7 +107,7 @@ public class AppListLoader extends AsyncTaskLoader<List<AppEntry>> {
 	 * Handles a request to cancel a load.
 	 */
 	@Override
-	public void onCanceled(List<AppEntry> apps) {
+	public void onCanceled(Software[] apps) {
 		super.onCanceled(apps);
 
 		// At this point we can release the resources associated with 'apps'
@@ -161,19 +131,13 @@ public class AppListLoader extends AsyncTaskLoader<List<AppEntry>> {
 			onReleaseResources(mApps);
 			mApps = null;
 		}
-
-		// Stop monitoring for changes.
-		if (mPackageObserver != null) {
-			getContext().unregisterReceiver(mPackageObserver);
-			mPackageObserver = null;
-		}
 	}
 
 	/**
 	 * Helper function to take care of releasing resources associated with an
 	 * actively loaded data set.
 	 */
-	protected void onReleaseResources(List<AppEntry> apps) {
+	protected void onReleaseResources(Software[] apps) {
 		// For a simple List<> there is nothing to do. For something
 		// like a Cursor, we would close it here.
 	}
