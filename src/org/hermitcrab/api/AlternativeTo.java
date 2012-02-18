@@ -29,6 +29,7 @@ public class AlternativeTo {
 	private static final String LOG_TAG = "AlternativeToAPI";
 	private static final String API_SEARCH = "search/software/";
 	private static final String API_ALTERNATIVE = "software/";
+	private static final Object API_ABOUT = "about/";
 
 	private static Gson mGson = new Gson();
 
@@ -43,6 +44,29 @@ public class AlternativeTo {
 			builder.deleteCharAt(builder.length() - 1);
 		}
 		return builder.toString();
+	}
+	
+	private static String getContent(String urlText) {
+		StringBuilder builder = new StringBuilder();
+		try {
+			URL url = new URL(urlText);
+			builder = new StringBuilder();
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			InputStream in = new BufferedInputStream(conn.getInputStream());
+			BufferedReader reader = new BufferedReader(
+					new InputStreamReader(in));
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				builder.append(line);
+			}
+			conn.disconnect();
+			return builder.toString();
+		} catch (MalformedURLException e) {
+			Log.e(LOG_TAG, e.getMessage());
+		} catch (IOException e) {
+			Log.e(LOG_TAG, e.getMessage());
+		}
+		return null;
 	}
 
 	public static Software alternative(String name, int count,
@@ -66,26 +90,7 @@ public class AlternativeTo {
 			}
 		}
 
-		try {
-			URL url = new URL(builder.toString());
-			builder = new StringBuilder();
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			InputStream in = new BufferedInputStream(conn.getInputStream());
-			BufferedReader reader = new BufferedReader(
-					new InputStreamReader(in));
-			String line = null;
-			while ((line = reader.readLine()) != null) {
-				builder.append(line);
-			}
-			conn.disconnect();
-			Software sw = mGson.fromJson(builder.toString(), Software.class);
-			return sw;
-		} catch (MalformedURLException e) {
-			Log.e(LOG_TAG, e.getMessage());
-		} catch (IOException e) {
-			Log.e(LOG_TAG, e.getMessage());
-		}
-		return null;
+		return mGson.fromJson(getContent(builder.toString()), Software.class);
 	}
 
 	public static Software[] search(String keyword, String[] platforms) {
@@ -99,26 +104,8 @@ public class AlternativeTo {
 			builder.append(join(platforms, "|"));
 		}
 
-		try {
-			URL url = new URL(builder.toString());
-			builder = new StringBuilder();
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			InputStream in = new BufferedInputStream(conn.getInputStream());
-			BufferedReader reader = new BufferedReader(
-					new InputStreamReader(in));
-			String line = null;
-			while ((line = reader.readLine()) != null) {
-				builder.append(line);
-			}
-			conn.disconnect();
-			Software[] apps = mGson.fromJson(builder.toString(),
-					Software[].class);
-			return apps;
-		} catch (MalformedURLException e) {
-			Log.e(LOG_TAG, e.getMessage());
-		} catch (IOException e) {
-			Log.e(LOG_TAG, e.getMessage());
-		}
-		return new Software[0];
+		Software[] apps = mGson.fromJson(getContent(builder.toString()),
+				Software[].class);
+		return apps == null ? new Software[0] : apps;
 	}
 }
