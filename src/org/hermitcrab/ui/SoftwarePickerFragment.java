@@ -3,7 +3,7 @@ package org.hermitcrab.ui;
 import org.hermitcrab.R;
 import org.hermitcrab.entity.Software;
 import org.hermitcrab.ui.adapter.AppEntry;
-import org.hermitcrab.ui.adapter.SoftwareSearchLoader;
+import org.hermitcrab.ui.adapter.SoftwarePickerLoader;
 
 import android.content.Context;
 import android.content.Intent;
@@ -119,7 +119,7 @@ public class SoftwarePickerFragment extends ListFragment implements
 
 	@Override
 	public Loader<Software[]> onCreateLoader(int id, Bundle args) {
-		return new SoftwareSearchLoader(getActivity(), mApp);
+		return new SoftwarePickerLoader(getActivity(), mApp);
 	}
 
 	@Override
