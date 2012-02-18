@@ -60,6 +60,12 @@ public class SearchResultFragment extends GridFragment implements
 	}
 
 	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		getGridView().setNumColumns(3);
+	}
+
+	@Override
 	public void onPause() {
 		super.onPause();
 		die(false);
