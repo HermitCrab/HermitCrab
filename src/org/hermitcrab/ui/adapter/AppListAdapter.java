@@ -52,7 +52,7 @@ public class AppListAdapter extends ArrayAdapter<AppEntry> {
 		AppEntry item = getItem(position);
 		TextView tv = (TextView) view.findViewById(android.R.id.text1);
 
-		Drawable icon = item.getIcon();
+		Drawable icon = item.getIcon(mInflater.getContext());
 		final int iconSize = mRes.getDimensionPixelSize(R.dimen.app_icon_size);
 		final int iconPadding = mRes
 				.getDimensionPixelSize(R.dimen.icon_padding);

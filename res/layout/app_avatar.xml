@@ -14,24 +14,24 @@
         android:id="@+id/image_app_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/text_app_name"
         android:layout_centerHorizontal="true"
-        android:contentDescription="@string/app_icon"
-        android:layout_below="@+id/text_app_name" />
-    
+        android:contentDescription="@string/app_icon" />
+
     <ImageView
         android:id="@+id/image_like"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/like"
+        android:layout_alignLeft="@+id/text_app_name"
         android:layout_below="@+id/image_app_icon"
         android:contentDescription="@string/like_icon"
-        android:layout_alignLeft="@+id/text_app_name" />
-    
-    <TextView 
+        android:src="@drawable/like" />
+
+    <TextView
         android:id="@+id/text_like_number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/image_like"
-        android:layout_toRightOf="@+id/image_like"/>
+        android:layout_toRightOf="@+id/image_like" />
 
 </RelativeLayout>

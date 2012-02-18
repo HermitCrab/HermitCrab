@@ -7,20 +7,52 @@ import java.util.Comparator;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.graphics.drawable.Drawable;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class AppEntry {
+public class AppEntry implements Parcelable {
 
-	private final AppListLoader mLoader;
+	public static final Parcelable.Creator<AppEntry> CREATOR = new Parcelable.Creator<AppEntry>() {
+
+		@Override
+		public AppEntry createFromParcel(Parcel source) {
+			return new AppEntry(source);
+		}
+
+		@Override
+		public AppEntry[] newArray(int size) {
+			return new AppEntry[size];
+		}
+	};
+
 	private final ApplicationInfo mInfo;
 	private final File mApkFile;
 	private String mLabel;
 	private Drawable mIcon;
 	private boolean mMounted;
 
-	public AppEntry(AppListLoader loader, ApplicationInfo info) {
-		mLoader = loader;
+	public AppEntry(ApplicationInfo info) {
 		mInfo = info;
 		mApkFile = new File(info.sourceDir);
+	}
+
+	public AppEntry(Parcel in) {
+		mLabel = in.readString();
+		mMounted = (in.readInt() == 1);
+		mInfo = in.readParcelable(ApplicationInfo.class.getClassLoader());
+		mApkFile = new File(mInfo.sourceDir);
+	}
+
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public void writeToParcel(Parcel out, int flags) {
+		out.writeString(mLabel);
+		out.writeInt(mMounted ? 1 : 0);
+		out.writeParcelable(mInfo, flags);
 	}
 
 	public ApplicationInfo getApplicationInfo() {
@@ -31,10 +63,10 @@ public class AppEntry {
 		return mLabel;
 	}
 
-	public Drawable getIcon() {
+	public Drawable getIcon(Context context) {
 		if (mIcon == null) {
 			if (mApkFile.exists()) {
-				mIcon = mInfo.loadIcon(mLoader.mPm);
+				mIcon = mInfo.loadIcon(context.getPackageManager());
 				return mIcon;
 			} else {
 				mMounted = false;
@@ -44,15 +76,15 @@ public class AppEntry {
 			// its icon.
 			if (mApkFile.exists()) {
 				mMounted = true;
-				mIcon = mInfo.loadIcon(mLoader.mPm);
+				mIcon = mInfo.loadIcon(context.getPackageManager());
 				return mIcon;
 			}
 		} else {
 			return mIcon;
 		}
 
-		return mLoader.getContext().getResources()
-				.getDrawable(android.R.drawable.sym_def_app_icon);
+		return context.getResources().getDrawable(
+				android.R.drawable.sym_def_app_icon);
 	}
 
 	@Override

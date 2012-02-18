@@ -8,15 +8,13 @@ import org.hermitcrab.ui.adapter.AppListAdapter;
 import org.hermitcrab.ui.adapter.AppListLoader;
 import org.hermitcrab.ui.adapter.RecentAppListLoader;
 import org.hermitcrab.ui.adapter.SeparatedListAdapter;
+import org.hermitcrab.ui.phone.SoftwarePickerActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v4.view.Menu;
-import android.support.v4.view.MenuItem;
-import android.util.Log;
-import android.view.MenuInflater;
 import android.view.View;
 import android.widget.ListView;
 
@@ -72,8 +70,17 @@ public class AppListFragment extends ListFragment implements
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		// Insert desired behavior here.
-		Log.i("LoaderCustom", "Item clicked: " + id);
+		Object item = l.getItemAtPosition(position);
+		if (item == null) {
+			return;
+		}
+		if (item instanceof AppEntry) {
+			Intent intent = new Intent(getActivity(),
+					SoftwarePickerActivity.class);
+			intent.putExtra(SoftwarePickerFragment.EXTRA_APP_ENTRY,
+					(AppEntry) item);
+			((BaseActivity) getActivity()).openActivityOrFragment(intent);
+		}
 	}
 
 	@Override
