@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -94,7 +95,8 @@ public class SoftwarePickerFragment extends ListFragment implements
 		if (software != null) {
 			Intent intent = new Intent(getActivity(),
 					SearchResultActivity.class);
-			intent.putExtra(SearchResultFragment.EXTRA_SOFTWARE, software);
+			Log.d("wuman", "onSoftwareClick: id: " + software.id);
+			intent.putExtra(SearchResultFragment.EXTRA_SOFTWARE, software.id);
 			((BaseActivity) getActivity()).openActivityOrFragment(intent);
 		}
 		die(false);

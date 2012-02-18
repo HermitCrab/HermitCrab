@@ -8,13 +8,13 @@ import android.support.v4.content.AsyncTaskLoader;
 
 public class SoftwareAlternativeLoader extends AsyncTaskLoader<Software[]> {
 
-	private final Software mSoftware;
+	private final String mSoftwareId;
 
 	Software[] mApps;
 
-	public SoftwareAlternativeLoader(Context context, Software sw) {
+	public SoftwareAlternativeLoader(Context context, String softwareId) {
 		super(context);
-		mSoftware = sw;
+		mSoftwareId = softwareId;
 	}
 
 	/**
@@ -24,7 +24,7 @@ public class SoftwareAlternativeLoader extends AsyncTaskLoader<Software[]> {
 	 */
 	@Override
 	public Software[] loadInBackground() {
-		Software sw = AlternativeTo.alternative(mSoftware.id, 0, null);
+		Software sw = AlternativeTo.alternative(mSoftwareId, 0, null);
 		return sw.items;
 	}
 

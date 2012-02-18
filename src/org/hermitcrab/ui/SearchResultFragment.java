@@ -5,11 +5,12 @@ import org.hermitcrab.entity.Software;
 import org.hermitcrab.ui.adapter.SoftwareAlternativeLoader;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,8 +21,10 @@ import android.widget.Toast;
 
 public class SearchResultFragment extends GridFragment implements
 		LoaderManager.LoaderCallbacks<Software[]> {
-			
-	private Software mSoftware;
+
+	public static final String EXTRA_SOFTWARE = "extra.software";
+
+	private String mSoftwareId;
 	private SoftwareAdapter mAdapter;
 
 	private void die(boolean toast) {
@@ -32,19 +35,17 @@ public class SearchResultFragment extends GridFragment implements
 		getActivity().finish();
 	}
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		Intent intent = BaseActivity.fragmentArgumentsToIntent(getArguments());
-		mSoftware = (Software) (intent == null ? null : intent
-				.getParcelableExtra(EXTRA_SOFTWARE));
+	public void setSoftwareId(String id) {
+		mSoftwareId = id;
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		if (mSoftware == null) {
+
+		Log.d("wuman", "id: " + mSoftwareId);
+
+		if (TextUtils.isEmpty(mSoftwareId)) {
 			die(true);
 		}
 
@@ -99,8 +100,7 @@ public class SearchResultFragment extends GridFragment implements
 			View view;
 
 			if (convertView == null) {
-				view = mInflater.inflate(R.layout.app_avatar,
-						parent, false);
+				view = mInflater.inflate(R.layout.app_avatar, parent, false);
 			} else {
 				view = convertView;
 			}
@@ -110,8 +110,9 @@ public class SearchResultFragment extends GridFragment implements
 			tv = (TextView) view.findViewById(R.id.text_app_name);
 			tv.setText(software.name);
 			tv = (TextView) view.findViewById(R.id.text_like_number);
-			tv.setText(software.votes);
-			ImageView image = (ImageView)view.findViewById(R.id.image_app_icon);
+			tv.setText(Integer.toString(software.votes));
+			ImageView image = (ImageView) view
+					.findViewById(R.id.image_app_icon);
 			image.setImageResource(R.drawable.ic_launcher);
 
 			return view;
@@ -120,19 +121,19 @@ public class SearchResultFragment extends GridFragment implements
 
 	@Override
 	public Loader<Software[]> onCreateLoader(int id, Bundle args) {
-		return new SoftwareAlternativeLoader(getActivity(), mSoftware);
+		return new SoftwareAlternativeLoader(getActivity(), mSoftwareId);
 	}
 
 	@Override
 	public void onLoadFinished(Loader<Software[]> loader, Software[] data) {
 		mAdapter.setData(data);
-		
+
 		if (isResumed()) {
 			setGridShown(true);
 		} else {
 			setGridShownNoAnimation(true);
 		}
-		
+
 		if (data == null || data.length == 0) {
 			die(true);
 		}
@@ -142,7 +143,5 @@ public class SearchResultFragment extends GridFragment implements
 	public void onLoaderReset(Loader<Software[]> loader) {
 		mAdapter.setData(null);
 	}
-
-	public static final String EXTRA_SOFTWARE = "extra.software";
 
 }
