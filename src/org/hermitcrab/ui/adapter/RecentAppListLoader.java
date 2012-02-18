@@ -1,6 +1,7 @@
 package org.hermitcrab.ui.adapter;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 
 import android.app.ActivityManager;
@@ -16,11 +17,16 @@ import android.content.pm.ResolveInfo;
 public class RecentAppListLoader extends AppListLoader {
 
 	final ActivityManager mAm;
+	Hashtable<String, String> mIgnore;
 
 	public RecentAppListLoader(Context context) {
 		super(context);
 		mAm = (ActivityManager) context
 				.getSystemService(Context.ACTIVITY_SERVICE);
+		mIgnore = new Hashtable<String, String>();
+		mIgnore.put("org.hermitcrab", "org.hermitcrab");
+		mIgnore.put("com.android.launcher", "com.android.launcher");
+		mIgnore.put("com.android.settings", "com.android.settings");
 	}
 
 	@Override
@@ -54,7 +60,8 @@ public class RecentAppListLoader extends AppListLoader {
 							applicationInfo = resolveInfo.activityInfo.applicationInfo;
 						}
 					}
-					if (applicationInfo != null) {
+					if (applicationInfo != null
+							&& !mIgnore.containsKey(applicationInfo.packageName)) {
 						apps.add(applicationInfo);
 					}
 				} catch (NameNotFoundException e) {
