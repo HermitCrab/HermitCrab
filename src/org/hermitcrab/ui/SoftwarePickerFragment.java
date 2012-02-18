@@ -4,6 +4,7 @@ import org.hermitcrab.R;
 import org.hermitcrab.entity.Software;
 import org.hermitcrab.ui.adapter.AppEntry;
 import org.hermitcrab.ui.adapter.SoftwarePickerLoader;
+import org.hermitcrab.ui.phone.SearchResultActivity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -16,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -71,6 +73,22 @@ public class SoftwarePickerFragment extends ListFragment implements
 	public void onDestroy() {
 		getLoaderManager().destroyLoader(0);
 		super.onDestroy();
+	}
+
+	@Override
+	public void onListItemClick(ListView l, View v, int position, long id) {
+		Software software = mAdapter.getItem(position);
+		onSoftwareClick(software);
+	}
+
+	private void onSoftwareClick(Software software) {
+		if (software != null) {
+			Intent intent = new Intent(getActivity(),
+					SearchResultActivity.class);
+			intent.putExtra(SearchResultFragment.EXTRA_SOFTWARE, software);
+			((BaseActivity) getActivity()).openActivityOrFragment(intent);
+		}
+		die(false);
 	}
 
 	private static final class SoftwareAdapter extends ArrayAdapter<Software> {
@@ -134,6 +152,9 @@ public class SoftwarePickerFragment extends ListFragment implements
 
 		if (data == null || data.length == 0) {
 			die(true);
+			return;
+		} else if (data != null && data.length == 1) {
+			onSoftwareClick(data[0]);
 		}
 	}
 

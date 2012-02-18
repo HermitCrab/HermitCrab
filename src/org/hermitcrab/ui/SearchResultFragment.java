@@ -144,4 +144,6 @@ public class SearchResultFragment extends GridFragment implements
 		mAdapter.setData(null);
 	}
 
+	public static final String EXTRA_SOFTWARE = "extra.software";
+
 }

@@ -15,9 +15,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.google.gson.Gson;
-
 import android.util.Log;
+
+import com.google.gson.Gson;
 
 public class AlternativeTo {
 	public static final String PLATFORM_ANDROID = "android";
@@ -53,6 +53,8 @@ public class AlternativeTo {
 	}
 
 	private static String getContent(String urlText) {
+		Log.d(LOG_TAG, "REQ: " + urlText);
+
 		StringBuilder builder = new StringBuilder();
 		try {
 			URL url = new URL(urlText);
@@ -66,7 +68,12 @@ public class AlternativeTo {
 				builder.append(line);
 			}
 			conn.disconnect();
-			return builder.toString();
+
+			String content = builder.toString();
+
+			Log.d(LOG_TAG, content);
+
+			return content;
 		} catch (MalformedURLException e) {
 			Log.e(LOG_TAG, e.getMessage());
 		} catch (IOException e) {

@@ -1,6 +1,6 @@
 package org.hermitcrab.ui.adapter;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 import org.hermitcrab.api.AlternativeTo;
 import org.hermitcrab.entity.Software;
@@ -27,7 +27,7 @@ public class SoftwarePickerLoader extends AsyncTaskLoader<Software[]> {
 	 */
 	@Override
 	public Software[] loadInBackground() {
-		ArrayList<String> keywords = new ArrayList<String>();
+		HashSet<String> keywords = new HashSet<String>();
 
 		String packageName = mAppEntry.getApplicationInfo().packageName;
 		String[] segments = TextUtils.split(packageName, ".");
@@ -36,7 +36,12 @@ public class SoftwarePickerLoader extends AsyncTaskLoader<Software[]> {
 				keywords.add(segment);
 			}
 		}
-		keywords.add(mAppEntry.getLabel());
+		segments = TextUtils.split(mAppEntry.getLabel(), " ");
+		for (String segment : segments) {
+			if (segment.length() > 3) {
+				keywords.add(segment);
+			}
+		}
 
 		Software[] softwares = AlternativeTo.search(
 				TextUtils.join("%20", keywords),
