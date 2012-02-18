@@ -5,10 +5,15 @@ import org.hermitcrab.entity.Software;
 import org.hermitcrab.ui.adapter.AppEntry;
 import org.hermitcrab.ui.adapter.SoftwarePickerLoader;
 import org.hermitcrab.ui.phone.SearchResultActivity;
+import org.hermitcrab.util.PhotoCache;
+import org.hermitcrab.util.PhotoCache.PhotoCacheListener;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
@@ -22,12 +27,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class SoftwarePickerFragment extends ListFragment implements
-		LoaderManager.LoaderCallbacks<Software[]> {
+		LoaderManager.LoaderCallbacks<Software[]>, PhotoCacheListener {
 
 	public static final String EXTRA_APP_ENTRY = "extra.app_entry";
 
 	private AppEntry mApp;
 	private SoftwareAdapter mAdapter;
+	private PhotoCache mPhotoCache;
 
 	private void die(boolean toast) {
 		if (toast) {
@@ -44,6 +50,8 @@ public class SoftwarePickerFragment extends ListFragment implements
 		Intent intent = BaseActivity.fragmentArgumentsToIntent(getArguments());
 		mApp = (AppEntry) (intent == null ? null : intent
 				.getParcelableExtra(EXTRA_APP_ENTRY));
+		mPhotoCache = new PhotoCache();
+		mPhotoCache.addListener(this);
 	}
 
 	@Override
@@ -55,7 +63,7 @@ public class SoftwarePickerFragment extends ListFragment implements
 
 		setEmptyText(getActivity().getString(R.string.empty_applications));
 
-		mAdapter = new SoftwareAdapter(getActivity());
+		mAdapter = new SoftwareAdapter(getActivity(), mPhotoCache);
 		setListAdapter(mAdapter);
 
 		setListShown(false);
@@ -71,6 +79,7 @@ public class SoftwarePickerFragment extends ListFragment implements
 
 	@Override
 	public void onDestroy() {
+		mPhotoCache.removeListener(this);
 		getLoaderManager().destroyLoader(0);
 		super.onDestroy();
 	}
@@ -95,12 +104,14 @@ public class SoftwarePickerFragment extends ListFragment implements
 
 		private final LayoutInflater mInflater;
 		private final Resources mRes;
+		private final PhotoCache mCache;
 
-		public SoftwareAdapter(Context context) {
+		public SoftwareAdapter(Context context, PhotoCache cache) {
 			super(context, android.R.layout.simple_list_item_2);
 			mInflater = (LayoutInflater) context
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			mRes = context.getResources();
+			mCache = cache;
 		}
 
 		public void setData(Software[] data) {
@@ -130,6 +141,16 @@ public class SoftwarePickerFragment extends ListFragment implements
 			TextView tv = (TextView) view.findViewById(android.R.id.text1);
 
 			tv.setText(software.name);
+			tv.setCompoundDrawablePadding(mRes
+					.getDimensionPixelSize(R.dimen.icon_padding));
+
+			Bitmap bitmap = mCache.get(getContext(), software.iconUrl);
+			Drawable d = bitmap == null ? null : new BitmapDrawable(mRes,
+					bitmap);
+			if (d != null) {
+				d.setBounds(0, 0, bitmap.getWidth(), bitmap.getHeight());
+			}
+			tv.setCompoundDrawables(d, null, null, null);
 
 			return view;
 		}
@@ -161,6 +182,11 @@ public class SoftwarePickerFragment extends ListFragment implements
 	@Override
 	public void onLoaderReset(Loader<Software[]> loader) {
 		mAdapter.setData(null);
+	}
+
+	@Override
+	public void onPhotosLoaded(PhotoCache cache, String... urls) {
+		mAdapter.notifyDataSetChanged();
 	}
 
 }
