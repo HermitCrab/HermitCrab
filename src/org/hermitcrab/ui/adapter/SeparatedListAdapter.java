@@ -3,13 +3,17 @@ package org.hermitcrab.ui.adapter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.hermitcrab.R;
+
 import android.content.Context;
 import android.database.DataSetObserver;
+import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.TextView;
 
 public class SeparatedListAdapter extends BaseAdapter {
 
@@ -35,7 +39,7 @@ public class SeparatedListAdapter extends BaseAdapter {
 
 	public SeparatedListAdapter(Context context) {
 		headers = new ArrayAdapter<String>(context,
-				android.R.layout.simple_list_item_1);
+				R.layout.section_header);
 	}
 
 	public void addSection(String section, Adapter adapter) {
@@ -112,8 +116,10 @@ public class SeparatedListAdapter extends BaseAdapter {
 			int size = adapter.getCount() + 1;
 
 			// check if position inside this section
-			if (position == 0)
-				return headers.getView(sectionnum, convertView, parent);
+			if (position == 0) {
+				View view = headers.getView(sectionnum, convertView, parent);
+				return view;
+			}
 			if (position < size)
 				return adapter.getView(position - 1, convertView, parent);
 
