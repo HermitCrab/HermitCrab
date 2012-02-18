@@ -3,5 +3,6 @@
 
     <string name="app_name">Hermit Crab</string>
     <string name="empty_applications">No applications</string>
-
+    <string name="like_icon">Like icon</string>
+    <string name="app_icon">App icon</string>
 </resources>
