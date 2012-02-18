@@ -5,4 +5,7 @@
     <string name="empty_applications">No applications</string>
     <string name="like_icon">Like icon</string>
     <string name="app_icon">App icon</string>
+    <string name="recent_apps">Recent apps</string>
+    <string name="downloaded">Downloaded apps</string>
+    <string name="search">Search</string>
 </resources>

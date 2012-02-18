@@ -48,6 +48,7 @@ public class AppListAdapter extends ArrayAdapter<AppEntry> {
 			view = convertView;
 		}
 
+		view.setPadding(10, 10, 10, 10);
 		AppEntry item = getItem(position);
 		TextView tv = (TextView) view.findViewById(android.R.id.text1);
 
