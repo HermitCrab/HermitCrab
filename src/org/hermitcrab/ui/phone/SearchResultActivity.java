@@ -5,10 +5,12 @@ import org.hermitcrab.ui.AppDetailFragment;
 import org.hermitcrab.ui.BaseMultiPaneActivity;
 import org.hermitcrab.ui.SearchResultFragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 
 public class SearchResultActivity extends BaseMultiPaneActivity implements
 		FragmentManager.OnBackStackChangedListener {
@@ -22,12 +24,15 @@ public class SearchResultActivity extends BaseMultiPaneActivity implements
 
 		mFragmentManager = getSupportFragmentManager();
 		mFragmentManager.addOnBackStackChangedListener(this);
-	}
 
-	@Override
-	public FragmentReplaceInfo onSubstituteFragmentForActivityLaunch(
-			String activityClassName) {
-		return null;
+		Intent intent = getIntent();
+		Log.d("wuman", "intent: " + intent + ", extras: " + intent.getExtras());
+
+		SearchResultFragment srf = (SearchResultFragment) mFragmentManager
+				.findFragmentById(R.id.fragment_search_result);
+		srf.setSoftwareId(intent
+				.getStringExtra(SearchResultFragment.EXTRA_SOFTWARE));
+
 	}
 
 	@Override
