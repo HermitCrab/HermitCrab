@@ -22,7 +22,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.phone.SoftwarePickerActivity" >
+        <activity
+            android:excludeFromRecents="true"
+            android:name=".ui.phone.SoftwarePickerActivity"
+            android:theme="@android:style/Theme.Dialog" >
         </activity>
     </application>
 
