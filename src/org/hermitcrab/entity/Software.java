@@ -79,15 +79,17 @@ public class Software implements Parcelable {
 		relativeUrl = in.readString();
 		votes = in.readInt();
 		iconUrl = in.readString();
-		in.readStringArray(platforms);
+		platforms = in.createStringArray();
 		license = in.readString();
 		shortDescription = in.readString();
-		in.readStringArray(tags);
+		tags = in.createStringArray();
 		Parcelable[] parcels = in.readParcelableArray(Software.class
 				.getClassLoader());
-		items = new Software[parcels.length];
-		for (int i = 0; i < parcels.length; i++) {
-			items[i] = (Software) parcels[i];
+		if (parcels != null) {
+			items = new Software[parcels.length];
+			for (int i = 0; i < parcels.length; i++) {
+				items[i] = (Software) parcels[i];
+			}
 		}
 
 	}
