@@ -9,13 +9,13 @@ import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 import android.text.TextUtils;
 
-public class SoftwareSearchLoader extends AsyncTaskLoader<Software[]> {
+public class SoftwarePickerLoader extends AsyncTaskLoader<Software[]> {
 
 	private final AppEntry mAppEntry;
 
 	Software[] mApps;
 
-	public SoftwareSearchLoader(Context context, AppEntry appEntry) {
+	public SoftwarePickerLoader(Context context, AppEntry appEntry) {
 		super(context);
 		mAppEntry = appEntry;
 	}
