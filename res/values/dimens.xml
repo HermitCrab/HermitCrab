@@ -3,5 +3,7 @@
 
     <dimen name="app_icon_size">50.0dip</dimen>
     <dimen name="icon_padding">5.0dip</dimen>
+    <dimen name="gallery_reflection_gap">1px</dimen>
+    <dimen name="gallery_reflection_height">5.0px</dimen>
 
 </resources>

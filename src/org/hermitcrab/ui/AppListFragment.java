@@ -5,7 +5,9 @@ import java.util.List;
 import org.hermitcrab.R;
 import org.hermitcrab.ui.adapter.AppEntry;
 import org.hermitcrab.ui.adapter.AppListAdapter;
+import org.hermitcrab.ui.adapter.AppListLoader;
 import org.hermitcrab.ui.adapter.RecentAppListLoader;
+import org.hermitcrab.ui.adapter.SeparatedListAdapter;
 
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -20,8 +22,13 @@ public class AppListFragment extends ListFragment implements
 
 	private static final String LOG_TAG = AppListFragment.class.getSimpleName();
 
+	private static final int LOADER_RECENT_APPS = 0;
+	private static final int LOADER_DOWNLOADED_APPS = 1;
+
 	// This is the Adapter being used to display the list's data.
-	AppListAdapter mAdapter;
+	AppListAdapter mRecentAdapter;
+	AppListAdapter mDownloadedAdapter;
+	SeparatedListAdapter mAdapter;
 
 	// If non-null, this is the current filter the user has provided.
 	String mCurFilter;
@@ -35,7 +42,11 @@ public class AppListFragment extends ListFragment implements
 		setEmptyText(getActivity().getString(R.string.empty_applications));
 
 		// Create an empty adapter we will use to display the loaded data.
-		mAdapter = new AppListAdapter(getActivity());
+		mRecentAdapter = new AppListAdapter(getActivity());
+		mDownloadedAdapter = new AppListAdapter(getActivity());
+		mAdapter = new SeparatedListAdapter(getActivity());
+		mAdapter.addSection("Recent", mRecentAdapter);
+		mAdapter.addSection("Downloaded", mDownloadedAdapter);
 		setListAdapter(mAdapter);
 
 		// Start out with a progress indicator.
@@ -43,7 +54,15 @@ public class AppListFragment extends ListFragment implements
 
 		// Prepare the loader. Either re-connect with an existing one,
 		// or start a new one.
-		getLoaderManager().initLoader(0, null, this);
+		getLoaderManager().initLoader(LOADER_RECENT_APPS, null, this);
+		getLoaderManager().initLoader(LOADER_DOWNLOADED_APPS, null, this);
+	}
+
+	@Override
+	public void onDestroy() {
+		getLoaderManager().destroyLoader(LOADER_RECENT_APPS);
+		getLoaderManager().destroyLoader(LOADER_DOWNLOADED_APPS);
+		super.onDestroy();
 	}
 
 	@Override
@@ -56,14 +75,30 @@ public class AppListFragment extends ListFragment implements
 	public Loader<List<AppEntry>> onCreateLoader(int id, Bundle args) {
 		// This is called when a new Loader needs to be created. This
 		// sample only has one Loader with no arguments, so it is simple.
-		return new RecentAppListLoader(getActivity());
+		switch (id) {
+		case LOADER_RECENT_APPS:
+			return new RecentAppListLoader(getActivity());
+		case LOADER_DOWNLOADED_APPS:
+			return new AppListLoader(getActivity());
+		default:
+			return null;
+		}
 	}
 
 	@Override
 	public void onLoadFinished(Loader<List<AppEntry>> loader,
 			List<AppEntry> data) {
 		// Set the new data in the adapter.
-		mAdapter.setData(data);
+		switch (loader.getId()) {
+		case LOADER_RECENT_APPS:
+			mRecentAdapter.setData(data);
+			break;
+		case LOADER_DOWNLOADED_APPS:
+			mDownloadedAdapter.setData(data);
+			break;
+		default:
+			break;
+		}
 
 		// The list should now be shown.
 		if (isResumed()) {
@@ -76,7 +111,16 @@ public class AppListFragment extends ListFragment implements
 	@Override
 	public void onLoaderReset(Loader<List<AppEntry>> loader) {
 		// Clear the data in the adapter.
-		mAdapter.setData(null);
+		switch (loader.getId()) {
+		case LOADER_RECENT_APPS:
+			mRecentAdapter.setData(null);
+			break;
+		case LOADER_DOWNLOADED_APPS:
+			mDownloadedAdapter.setData(null);
+			break;
+		default:
+			break;
+		}
 	}
 
 }
