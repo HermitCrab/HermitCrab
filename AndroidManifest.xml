@@ -27,6 +27,8 @@
             android:name=".ui.phone.SoftwarePickerActivity"
             android:theme="@android:style/Theme.Dialog" >
         </activity>
+        <activity android:name=".ui.phone.SearchResultActivity"></activity>
+            
     </application>
 
 </manifest>
