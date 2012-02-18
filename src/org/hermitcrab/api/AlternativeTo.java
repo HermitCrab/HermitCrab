@@ -30,7 +30,8 @@ public class AlternativeTo {
 	public static final String PLATFORM_ONLINE = "online";
 
 	private static final String ALTERNATIVETO_DOMAIN = "alternativeto.net/";
-	private static final String API_PREFIX = "http://api." + ALTERNATIVETO_DOMAIN;
+	private static final String API_PREFIX = "http://api."
+			+ ALTERNATIVETO_DOMAIN;
 	private static final String LOG_TAG = "AlternativeToAPI";
 	private static final String API_SEARCH = "search/software/";
 	private static final String API_ALTERNATIVE = "software/";
@@ -114,7 +115,30 @@ public class AlternativeTo {
 		return apps == null ? new Software[0] : apps;
 	}
 
-	public static String[] getScreenshot(String name) {
+	public static String getMarketLink(Document doc) {
+		Element downloadContent = doc.getElementById("DownloadContent");
+		if (downloadContent != null) {
+			Elements elements = downloadContent.getElementsByTag("a");
+			for (Element element : elements) {
+				if (element.text().equalsIgnoreCase("android")) {
+					return element.attr("href");
+				}
+			}
+		}
+		return null;
+	}
+
+	public static String[] getScreenshots(Document doc) {
+		Elements elements = doc.select("ol.screens li.screenshot img");
+		String[] result = new String[elements.size()];
+		for (int i = 0; i < elements.size(); i++) {
+			Element e = elements.get(i);
+			result[i] = e.attr("src");
+		}
+		return result;
+	}
+
+	public static Document getDetailDocument(String name) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("http://" + ALTERNATIVETO_DOMAIN);
 		builder.append(API_ALTERNATIVE);
@@ -122,16 +146,9 @@ public class AlternativeTo {
 		builder.append(API_ABOUT);
 
 		String content = getContent(builder.toString());
-		
+
 		if (content != null) {
-			Document doc = Jsoup.parse(content);
-			Elements elements = doc.select("ol.screens li.screenshot img");
-			String[] result = new String[elements.size()];
-			for (int i = 0; i < elements.size(); i++) {
-				Element e = elements.get(i);
-				result[i] = e.attr("src");
-			}
-			return result;
+			return Jsoup.parse(content);
 		}
 		return null;
 	}
