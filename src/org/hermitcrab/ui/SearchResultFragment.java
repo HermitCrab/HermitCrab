@@ -21,7 +21,6 @@ import android.widget.Toast;
 public class SearchResultFragment extends GridFragment implements
 		LoaderManager.LoaderCallbacks<Software[]> {
 			
-	public static final String EXTRA_APP_ENTRY = "extra.app_entry";
 	private Software mSoftware;
 	private SoftwareAdapter mAdapter;
 
@@ -39,7 +38,7 @@ public class SearchResultFragment extends GridFragment implements
 
 		Intent intent = BaseActivity.fragmentArgumentsToIntent(getArguments());
 		mSoftware = (Software) (intent == null ? null : intent
-				.getParcelableExtra(EXTRA_APP_ENTRY));
+				.getParcelableExtra(EXTRA_SOFTWARE));
 	}
 
 	@Override
